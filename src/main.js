@@ -49,9 +49,9 @@ const getControlItem = (id, name, isChecked = false) => {
 const getControlLayout = (data) => {
   let controlLayout = ``;
 
-  data.forEach((item) => {
+  for (let item of data) {
     controlLayout += getControlItem(item.id, item.name, item.isChecked);
-  });
+  }
 
   return `<section class="control__btn-wrap"> 
     ${controlLayout}
@@ -143,11 +143,11 @@ const getFilterItem = (id, name, count = 0) => {
 const getFilterLayout = (data) => {
   let filtersLayout = ``;
 
-  data.forEach((item) => {
+  for (let item of data) {
     const filterItem = getFilterItem(item.id, item.name, item.count);
 
     filtersLayout += filterItem;
-  });
+  }
 
   return `<section class="main__filter filter container">
     ${filtersLayout}
@@ -480,7 +480,7 @@ const getCardEditForm = () => {
 const getCardItem = (color, text, hashTags, date, time, isRepeat = false, isDeadline = false) => {
   let hashTagItemsLayout = ``;
 
-  hashTags.forEach((item) => {
+  for (let item of hashTags) {
     const hashTag = `<span class="card__hashtag-inner">
       <span class="card__hashtag-name">
         #${item}
@@ -488,7 +488,8 @@ const getCardItem = (color, text, hashTags, date, time, isRepeat = false, isDead
     </span>`;
 
     hashTagItemsLayout += hashTag;
-  });
+  }
+
 
   return `<article class="card ${CARD_COLORS[color]}${isRepeat ? ` card--repeat` : ``}${isDeadline ? ` card--deadline` : ``}">
     <div class="card__form">
@@ -544,11 +545,11 @@ const getCardItem = (color, text, hashTags, date, time, isRepeat = false, isDead
 const getBoardTasks = (data) => {
   let boardTasks = ``;
 
-  data.forEach((item) => {
+  for (let item of data) {
     const cardTask = getCardItem(item.color, item.text, item.hashTags, item.date, item.time, item.isRepeat, item.isDeadline);
 
     boardTasks += cardTask;
-  });
+  }
 
   const cardEditForm = getCardEditForm();
 
