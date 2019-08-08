@@ -49,7 +49,7 @@ const getControlItem = (id, name, isChecked = false) => {
 const getControlLayout = (data) => {
   let controlLayout = ``;
 
-  for (let item of data) {
+  for (const item of data) {
     controlLayout += getControlItem(item.id, item.name, item.isChecked);
   }
 
@@ -143,7 +143,7 @@ const getFilterItem = (id, name, count = 0) => {
 const getFilterLayout = (data) => {
   let filtersLayout = ``;
 
-  for (let item of data) {
+  for (const item of data) {
     const filterItem = getFilterItem(item.id, item.name, item.count);
 
     filtersLayout += filterItem;
@@ -480,7 +480,7 @@ const getCardEditForm = () => {
 const getCardItem = (color, text, hashTags, date, time, isRepeat = false, isDeadline = false) => {
   let hashTagItemsLayout = ``;
 
-  for (let item of hashTags) {
+  for (const item of hashTags) {
     const hashTag = `<span class="card__hashtag-inner">
       <span class="card__hashtag-name">
         #${item}
@@ -545,7 +545,7 @@ const getCardItem = (color, text, hashTags, date, time, isRepeat = false, isDead
 const getBoardTasks = (data) => {
   let boardTasks = ``;
 
-  for (let item of data) {
+  for (const item of data) {
     const cardTask = getCardItem(item.color, item.text, item.hashTags, item.date, item.time, item.isRepeat, item.isDeadline);
 
     boardTasks += cardTask;
