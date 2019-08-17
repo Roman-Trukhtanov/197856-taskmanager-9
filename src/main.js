@@ -3,17 +3,20 @@ import {getControlLayout} from "./components/control";
 import {getSearchLayout} from "./components/search";
 import {getFilterLayout} from "./components/filter";
 import {getBoardLayout} from "./components/board";
-import {dataControls, dataFilters} from "./data";
+import {addListenerToLoadBtn} from "./components/board";
+import {dataControls, filtersData} from "./data";
 
 const mainContainer = document.querySelector(`.main`);
 
 const controlContainer = document.querySelector(`.control`);
 
 const initTodoApp = () => {
-  renderComponent(controlContainer, getControlLayout(dataControls), `beforeend`);
-  renderComponent(mainContainer, getSearchLayout(), `beforeend`);
-  renderComponent(mainContainer, getFilterLayout(dataFilters), `beforeend`);
-  renderComponent(mainContainer, getBoardLayout(), `beforeend`);
+  renderComponent(controlContainer, getControlLayout(dataControls));
+  renderComponent(mainContainer, getSearchLayout());
+  renderComponent(mainContainer, getFilterLayout(filtersData));
+  renderComponent(mainContainer, getBoardLayout());
+  addListenerToLoadBtn();
 };
 
 initTodoApp();
+

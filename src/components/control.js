@@ -9,7 +9,7 @@ const getControlItem = (id, name, isChecked = false) => {
       class="control__input visually-hidden"
       ${isChecked ? ` checked` : ``}
     />
-    <label for="control__${id}" class="control__label ${newTaskClass}">${name.toUpperCase()}</label>`;
+    <label for="control__${id}" class="control__label ${newTaskClass}">${name.toUpperCase()}</label>`.trim();
 };
 
 // Получаем разметку блока с "Меню"
@@ -22,5 +22,5 @@ export const getControlLayout = (data) => {
 
   return `<section class="control__btn-wrap"> 
     ${controlLayout}
-  </section>`;
+  </section>`.trim();
 };

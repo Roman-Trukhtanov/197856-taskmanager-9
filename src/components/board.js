@@ -1,36 +1,73 @@
+import {renderComponent} from "../utils";
 import {getLoadMoreBtn} from "./load-more";
 import {getTaskEditForm} from "./task-edit";
 import {getSortingList} from "./sorting";
 import {getTaskItem} from "./task";
-import {cardTasks} from "../data";
+import {allTasksData} from "../data";
+import {MAX_VISIBLE_TASKS_COUNT} from "../config";
 
-const getBoardTasks = (data) => {
-  let boardTasks = ``;
+const copyTasksData = [...allTasksData];
 
-  for (const item of data) {
-    const cardTask = getTaskItem(item.color, item.text, item.hashTags, item.date, item.time, item.isRepeat, item.isDeadline);
+const getBoardTasks = (tasks) => {
+  const cardEditForm = getTaskEditForm(tasks.splice(0, 1)[0]);
 
-    boardTasks += cardTask;
+  let tasksLayout = ``;
+
+  if (tasks.length >= MAX_VISIBLE_TASKS_COUNT) {
+    tasksLayout += tasks.splice(0, MAX_VISIBLE_TASKS_COUNT - 1).map((task) => getTaskItem(task)).join(``);
+  } else {
+    tasksLayout += tasks.map((task) => getTaskItem(task)).join(``);
   }
-
-  const cardEditForm = getTaskEditForm();
 
   return `<div class="board__tasks">
     ${cardEditForm}
-    ${boardTasks}
-  </div>`;
+    ${tasksLayout}
+  </div>`.trim();
 };
 
 export const getBoardLayout = () => {
   const loadMoreBtn = getLoadMoreBtn();
 
-  const boardFilterList = getSortingList();
+  const boardSortingList = getSortingList();
 
-  const boardTasks = getBoardTasks(cardTasks);
+  const boardTasks = getBoardTasks(copyTasksData);
 
   return `<section class="board container">
-     ${boardFilterList}
+     ${boardSortingList}
      ${boardTasks}
-     ${loadMoreBtn}
-  </section>`;
+     ${allTasksData.length > MAX_VISIBLE_TASKS_COUNT ? loadMoreBtn : ``}
+  </section>`.trim();
+};
+
+export const addListenerToLoadBtn = () => {
+  const loadMoreBtn = document.querySelector(`.load-more`);
+
+  if (loadMoreBtn) {
+    const loadTasks = () => {
+      const boardTasksItem = document.querySelector(`.board__tasks`);
+
+      let tasksItemsLayout = null;
+      let isTheLastTasks = false;
+
+      if (copyTasksData.length >= MAX_VISIBLE_TASKS_COUNT) {
+        tasksItemsLayout = copyTasksData.splice(0, MAX_VISIBLE_TASKS_COUNT - 1).map((task) => getTaskItem(task)).join(``);
+      } else {
+        tasksItemsLayout = copyTasksData.map((task) => getTaskItem(task)).join(``);
+        isTheLastTasks = true;
+      }
+
+      renderComponent(boardTasksItem, tasksItemsLayout, `beforeend`);
+
+      if (isTheLastTasks) {
+        loadMoreBtn.remove();
+      }
+    };
+
+    const onLoadMoreBtnClick = (evt) => {
+      evt.preventDefault();
+      loadTasks();
+    };
+
+    loadMoreBtn.addEventListener(`click`, onLoadMoreBtnClick);
+  }
 };

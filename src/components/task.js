@@ -1,31 +1,19 @@
-import {CARD_COLORS} from "../variables";
+import {monthsNames} from "../config";
 
-export const getTaskItem = (color, text, hashTags, date, time, isRepeat = false, isDeadline = false) => {
-  let hashTagItemsLayout = ``;
-
-  for (const item of hashTags) {
-    const hashTag = `<span class="card__hashtag-inner">
-      <span class="card__hashtag-name">
-        #${item}
-      </span>
-    </span>`;
-
-    hashTagItemsLayout += hashTag;
-  }
-
-  return `<article class="card ${CARD_COLORS[color]}${isRepeat ? ` card--repeat` : ``}${isDeadline ? ` card--deadline` : ``}">
+export const getTaskItem = ({description, dueDate, repeatingDays, tags, color, isFavorite, isArchive}) => {
+  return `<article class="card card--${color} ${Object.keys(repeatingDays).some((day) => repeatingDays[day]) ? `card--repeat` : ``}">
     <div class="card__form">
       <div class="card__inner">
         <div class="card__control">
           <button type="button" class="card__btn card__btn--edit">
             edit
           </button>
-          <button type="button" class="card__btn card__btn--archive">
+          <button type="button" class="card__btn card__btn--archive ${isArchive ? `card__btn--disabled` : ``}">
             archive
           </button>
           <button
             type="button"
-            class="card__btn card__btn--favorites card__btn--disabled"
+            class="card__btn card__btn--favorites ${isFavorite ? `card__btn--disabled` : ``}"
           >
             favorites
           </button>
@@ -38,7 +26,7 @@ export const getTaskItem = (color, text, hashTags, date, time, isRepeat = false,
         </div>
 
         <div class="card__textarea-wrap">
-          <p class="card__text">${text}</p>
+          <p class="card__text">${description}</p>
         </div>
 
         <div class="card__settings">
@@ -46,20 +34,24 @@ export const getTaskItem = (color, text, hashTags, date, time, isRepeat = false,
             <div class="card__dates">
               <div class="card__date-deadline">
                 <p class="card__input-deadline-wrap">
-                  <span class="card__date">${date}</span>
-                  <span class="card__time">${time}</span>
+                  <span class="card__date">${new Date(dueDate).getDate()} ${monthsNames[new Date(dueDate).getMonth()]}</span>
+                  <span class="card__time">${new Date(dueDate).toTimeString().slice(0, 5)} PM</span>
                 </p>
               </div>
             </div>
 
             <div class="card__hashtag">
               <div class="card__hashtag-list">
-                ${hashTagItemsLayout}
+                ${Array.from(tags).map((tag) => `<span class="card__hashtag-inner">
+                  <span class="card__hashtag-name">
+                    #${tag}
+                  </span>
+                </span>`).join(``)}
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </article>`;
+  </article>`.trim();
 };
