@@ -62,50 +62,50 @@ export const getCardTaskData = () => {
 export const allTasksData = new Array(TASK_COUNT).fill(``).map(() => getCardTaskData());
 
 export const getFiltersData = (tasksData) => {
-  return [
-    {
+  return {
+    "all": {
       title: `all`,
       get count() {
-        return tasksData.length;
+        return tasksData.filter((task) => task.isArchive === false).length;
       }
     },
-    {
+    "overdue": {
       title: `overdue`,
       get count() {
         return tasksData.filter((task) => new Date(task.dueDate).getDate() < new Date(Date.now()).getDate()).length;
       }
     },
-    {
+    "today": {
       title: `today`,
       get count() {
         return tasksData.filter((task) => new Date(task.dueDate).getDate() === new Date(Date.now()).getDate()).length;
       }
     },
-    {
+    "favorites": {
       title: `favorites`,
       get count() {
         return tasksData.filter((task) => task.isFavorite).length;
       }
     },
-    {
+    "repeating": {
       title: `repeating`,
       get count() {
         return tasksData.filter((task) => Object.values(task.repeatingDays).some((dayValue) => dayValue)).length;
       }
     },
-    {
+    "tags": {
       title: `tags`,
       get count() {
         return tasksData.filter((task) => task.tags.size).length;
       }
     },
-    {
+    "archive": {
       title: `archive`,
       get count() {
         return tasksData.filter((task) => task.isArchive).length;
       }
     },
-  ];
+  };
 };
 
 export const filtersData = getFiltersData(allTasksData);
