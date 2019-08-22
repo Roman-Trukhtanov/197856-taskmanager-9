@@ -1,6 +1,6 @@
 import {createElement} from "../utils";
 
-export default class LoadMore {
+export default class BoardTasks {
   constructor() {
     this._element = null;
   }
@@ -18,6 +18,6 @@ export default class LoadMore {
   }
 
   getTemplate() {
-    return `<button class="load-more" type="button">load more</button>`;
+    return `<div class="board__tasks"></div>`.trim();
   }
 }

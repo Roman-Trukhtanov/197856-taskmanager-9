@@ -1,26 +1,23 @@
-// Получаем разметку одного фильтра
-const getFilterItem = ({title, count}) => {
-  title = title.toLowerCase();
+import {createElement} from "../utils";
 
-  const checked = title === `all` ? `checked` : ``;
+export default class Filter {
+  constructor() {
+    this._element = null;
+  }
 
-  const disabled = count === 0 ? `disabled` : ``;
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
 
-  return `<input
-    type="radio"
-    id="filter__${title}"
-    class="filter__input visually-hidden"
-    name="filter"
-    ${checked}
-    ${disabled}
-  />
-  <label for="filter__${title}" class="filter__label">${title} <span class="filter__${title}-count">${count}</span>
-  </label>`.trim();
-};
+    return this._element;
+  }
 
-// Получаем разметку блока с "Фильтрами"
-export const getFilterLayout = (filtersData) => {
-  return `<section class="main__filter filter container">
-    ${filtersData.map((filter) => getFilterItem(filter)).join(``)}
-</section>`.trim();
-};
+  removeElement() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return `<section class="main__filter filter container"></section>`;
+  }
+}
