@@ -9,6 +9,7 @@ import BoardTasks from "./components/board-tasks";
 import LoadMore from "./components/load-more";
 import Task from "./components/task";
 import TaskEdit from "./components/task-edit";
+import BoardNoTasks from "./components/board-no-tasks";
 import {allTasksData, dataControls, filtersData} from "./data";
 import {MAX_VISIBLE_TASKS_COUNT} from "./config";
 
@@ -36,7 +37,7 @@ const renderFilters = (dataFilters) => {
   const filter = new Filter();
   const filterElement = filter.getElement();
 
-  for (const filterData of dataFilters) {
+  for (const filterData of Object.values(dataFilters)) {
     const filterItem = new FilterItem(filterData);
     const filterItemElement = filterItem.getElement();
 
@@ -146,9 +147,12 @@ const addListenerToLoadBtn = (btn, container) => {
   }
 };
 
-const renderBoard = (tasksData) => {
+const renderBoard = (tasksData, filters) => {
   const board = new Board();
   const boardElement = board.getElement();
+
+  const noTasks = new BoardNoTasks();
+  const noTasksElement = noTasks.getElement();
 
   const loadMoreBtn = new LoadMore();
   const loadMoreBtnElement = loadMoreBtn.getElement();
@@ -158,13 +162,17 @@ const renderBoard = (tasksData) => {
 
   const boardTasksElement = getBoardTasks(tasksData);
 
-  addListenerToLoadBtn(loadMoreBtnElement, boardTasksElement);
+  if (filters.all.count === 0 || (filters.archive.count > 0 && filters.all.count === 0)) {
+    render(boardElement, noTasksElement, Position.BEFOREEND);
+  } else {
+    addListenerToLoadBtn(loadMoreBtnElement, boardTasksElement);
 
-  render(boardElement, boardSortingElement, Position.BEFOREEND);
-  render(boardElement, boardTasksElement, Position.BEFOREEND);
+    render(boardElement, boardSortingElement, Position.BEFOREEND);
+    render(boardElement, boardTasksElement, Position.BEFOREEND);
 
-  if (allTasksData.length >= MAX_VISIBLE_TASKS_COUNT) {
-    render(boardElement, loadMoreBtnElement, Position.BEFOREEND);
+    if (allTasksData.length >= MAX_VISIBLE_TASKS_COUNT) {
+      render(boardElement, loadMoreBtnElement, Position.BEFOREEND);
+    }
   }
 
   render(mainContainer, boardElement, Position.BEFOREEND);
@@ -174,7 +182,7 @@ const initTodoApp = () => {
   renderControl(dataControls);
   renderSearch();
   renderFilters(filtersData);
-  renderBoard(copyTasksData);
+  renderBoard(copyTasksData, filtersData);
 };
 
 initTodoApp();
