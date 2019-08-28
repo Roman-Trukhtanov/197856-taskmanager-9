@@ -1,25 +1,13 @@
-import {monthsNames} from "../config";
-import {createElement} from "../utils";
+import AbstractComponent from "./abstract-component";
 
-export default class TaskEdit {
-  constructor({repeatingDays, tags, color, dueDate}) {
+export default class TaskEdit extends AbstractComponent {
+  constructor({repeatingDays, tags, color, dueDate}, monthsNames) {
+    super();
     this._dueDate = dueDate;
     this._repeatingDays = repeatingDays;
     this._tags = tags;
     this._color = color;
-    this._element = null;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+    this._monthsNames = monthsNames;
   }
 
   getTemplate() {
@@ -70,7 +58,7 @@ export default class TaskEdit {
                       type="text"
                       placeholder=""
                       name="date"
-                      value="${new Date(this._dueDate).getDate()} ${monthsNames[new Date(this._dueDate).getMonth()]} ${new Date(this._dueDate).toTimeString().slice(0, 5)} PM"
+                      value="${new Date(this._dueDate).getDate()} ${this._monthsNames[new Date(this._dueDate).getMonth()]} ${new Date(this._dueDate).toTimeString().slice(0, 5)} PM"
                     />
                   </label>
                 </fieldset>

@@ -1,8 +1,8 @@
-import {monthsNames} from "../config";
-import {createElement} from "../utils";
+import AbstractComponent from "./abstract-component";
 
-export default class Task {
-  constructor({description, dueDate, repeatingDays, tags, color, isFavorite, isArchive}) {
+export default class Task extends AbstractComponent {
+  constructor({description, dueDate, repeatingDays, tags, color, isFavorite, isArchive}, monthsNames) {
+    super();
     this._description = description;
     this._dueDate = dueDate;
     this._repeatingDays = repeatingDays;
@@ -10,19 +10,7 @@ export default class Task {
     this._color = color;
     this._isFavorite = isFavorite;
     this._isArchive = isArchive;
-    this._element = null;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+    this._monthsNames = monthsNames;
   }
 
   getTemplate() {
@@ -59,7 +47,7 @@ export default class Task {
               <div class="card__dates">
                 <div class="card__date-deadline">
                   <p class="card__input-deadline-wrap">
-                    <span class="card__date">${new Date(this._dueDate).getDate()} ${monthsNames[new Date(this._dueDate).getMonth()]}</span>
+                    <span class="card__date">${new Date(this._dueDate).getDate()} ${this._monthsNames[new Date(this._dueDate).getMonth()]}</span>
                     <span class="card__time">${new Date(this._dueDate).toTimeString().slice(0, 5)} PM</span>
                   </p>
                 </div>
