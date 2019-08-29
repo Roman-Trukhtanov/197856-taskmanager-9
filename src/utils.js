@@ -35,3 +35,5 @@ export const unrender = (element) => {
 export const isEscKey = (evt) => {
   return evt.key === `Escape` || evt.key === `Esc`;
 };
+
+export const isTagLink = (evt) => evt.target.tagName === `A`;
