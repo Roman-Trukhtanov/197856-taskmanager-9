@@ -1,8 +1,8 @@
-import {isEscKey, Position, render} from "../utils";
+import {isEscKey, isTagLink, Position, render} from "../utils";
 import Board from "../components/board";
 import BoardNoTasks from "../components/board-no-tasks";
 import LoadMore from "../components/load-more";
-import Sorting from "../components/sorting";
+import Sort from "../components/sort";
 import Task from "../components/task";
 import TaskEdit from "../components/task-edit";
 import BoardTasks from "../components/board-tasks";
@@ -19,28 +19,30 @@ export default class BoardController {
     this._boardTasks = new BoardTasks();
     this._noTasks = new BoardNoTasks();
     this._loadMoreBtn = new LoadMore();
-    this._boardSorting = new Sorting();
+    this._boardSorting = new Sort();
+    this._isAllTaskShown = false;
   }
 
   init() {
     this._renderBoard();
+
+    this._boardSorting.getElement()
+      .addEventListener(`click`, (evt) => this._onSortLinkClick(evt));
   }
 
   _addListenerToLoadBtn(btn, container) {
     if (btn) {
       const loadTasks = () => {
-        let isTheLastTasks = false;
-
         if (this._copyTasksData.length >= MAX_VISIBLE_TASKS_COUNT) {
           this._copyTasksData.splice(0, MAX_VISIBLE_TASKS_COUNT).forEach((task) => {
             this._renderTasks(task, container);
           });
         } else {
           this._copyTasksData.forEach((task) => this._renderTasks(task, container));
-          isTheLastTasks = true;
+          this._isAllTaskShown = true;
         }
 
-        if (isTheLastTasks) {
+        if (this._isAllTaskShown) {
           btn.remove();
         }
       };
@@ -110,13 +112,14 @@ export default class BoardController {
     const boardTasksElement = this._boardTasks.getElement();
 
     for (const taskData of this._copyTasksData) {
-      if (this._copyTasksData.length >= MAX_VISIBLE_TASKS_COUNT) {
+      if (this._copyTasksData.length >= MAX_VISIBLE_TASKS_COUNT && this._isAllTaskShown === false) {
         this._copyTasksData.splice(0, MAX_VISIBLE_TASKS_COUNT).forEach((task) => {
           this._renderTasks(task, boardTasksElement);
         });
 
         break;
       } else {
+        this._isAllTaskShown = true;
         this._renderTasks(taskData, boardTasksElement);
       }
     }
@@ -149,5 +152,38 @@ export default class BoardController {
     }
 
     render(this._container, boardElement, Position.BEFOREEND);
+  }
+
+  _updateCopiedTaskData(data) {
+    this._copyTasksData = [...data];
+  }
+
+  _onSortLinkClick(evt) {
+    evt.preventDefault();
+
+    if (!isTagLink(evt)) {
+      return;
+    }
+
+    this._boardTasks.getElement().innerHTML = ``;
+
+    const sortType = evt.target.dataset.sortType;
+
+    switch (sortType) {
+      case `default`:
+        this._updateCopiedTaskData(this._tasksData);
+        this._getBoardTasks();
+        break;
+      case `date-up`:
+        const sortedByDateUpTasks = this._tasksData.slice().sort((a, b) => a.dueDate - b.dueDate);
+        this._updateCopiedTaskData(sortedByDateUpTasks);
+        this._getBoardTasks();
+        break;
+      case `date-down`:
+        const sortedByDateDownTasks = this._tasksData.slice().sort((a, b) => b.dueDate - a.dueDate);
+        this._updateCopiedTaskData(sortedByDateDownTasks);
+        this._getBoardTasks();
+        break;
+    }
   }
 }
