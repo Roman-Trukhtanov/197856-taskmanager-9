@@ -1,26 +1,27 @@
-import {isEscKey, isTagLink, Position, render} from "../utils";
+import {isTagLink, Position, render} from "../utils";
 import Board from "../components/board";
 import BoardNoTasks from "../components/board-no-tasks";
 import LoadMore from "../components/load-more";
 import Sort from "../components/sort";
-import Task from "../components/task";
-import TaskEdit from "../components/task-edit";
 import BoardTasks from "../components/board-tasks";
 import {MAX_VISIBLE_TASKS_COUNT} from "../config";
+import TaskController from "./task-controller";
 
 export default class BoardController {
-  constructor(container, tasksData, filtersData, monthsNames) {
+  constructor(container, tasksData, filtersData) {
     this._container = container;
     this._tasksData = tasksData;
     this._copyTasksData = [...tasksData];
     this._filtersData = filtersData;
-    this._monthsNames = monthsNames;
     this._board = new Board();
     this._boardTasks = new BoardTasks();
     this._noTasks = new BoardNoTasks();
     this._loadMoreBtn = new LoadMore();
     this._boardSorting = new Sort();
     this._isAllTaskShown = false;
+    this._subscriptions = [];
+    this._onChangeView = this._onChangeView.bind(this);
+    this._onDataChange = this._onDataChange.bind(this);
   }
 
   init() {
@@ -56,59 +57,33 @@ export default class BoardController {
     }
   }
 
-  _renderTasks(taskData, container) {
-    const task = new Task(taskData, this._monthsNames);
-    const taskElement = task.getElement();
+  _onChangeView() {
+    this._subscriptions.forEach((setDefaultViewCall) => setDefaultViewCall());
+  }
 
-    const taskEdit = new TaskEdit(taskData, this._monthsNames);
-    const taskEditElement = taskEdit.getElement();
+  _renderTasks(task, container) {
+    const taskController = new TaskController(container, task, this._onChangeView, this._onDataChange);
 
-    const onEscKeyDown = (evt) => {
-      if (isEscKey(evt)) {
-        container.replaceChild(taskElement, taskEditElement);
-        document.removeEventListener(`keydown`, onEscKeyDown);
-      }
-    };
+    this._subscriptions.push(taskController.setDefaultView.bind(taskController));
+  }
 
-    taskElement
-      .querySelector(`.card__btn--edit`)
-      .addEventListener(`click`, (evt) => {
-        evt.preventDefault();
-        container.replaceChild(taskEditElement, taskElement);
-        document.addEventListener(`keydown`, onEscKeyDown);
-      });
+  _onDataChange(newData, oldData) {
+    if (newData !== `undefined` && oldData !== `undefined`) {
+      this._tasksData[this._tasksData.findIndex((taskData) => taskData === oldData)] = newData;
+      this._updateCopiedTaskData(this._tasksData);
+    }
 
-    taskEditElement
-      .querySelector(`textarea`)
-      .addEventListener(`focus`, () => {
-        document.removeEventListener(`keydown`, onEscKeyDown);
-      });
+    this._boardTasks.getElement().innerHTML = ``;
+    this._getBoardTasks();
+  }
 
-    taskEditElement.querySelector(`textarea`)
-      .addEventListener(`blur`, () => {
-        document.addEventListener(`keydown`, onEscKeyDown);
-      });
-
-    taskEditElement
-      .querySelector(`.card__save`)
-      .addEventListener(`click`, (evt) => {
-        evt.preventDefault();
-        container.replaceChild(taskElement, taskEditElement);
-        document.removeEventListener(`keydown`, onEscKeyDown);
-      });
-
-    taskEditElement
-      .querySelector(`.card__form`)
-      .addEventListener(`submit`, (evt) => {
-        evt.preventDefault();
-        container.replaceChild(taskElement, taskEditElement);
-        document.removeEventListener(`keydown`, onEscKeyDown);
-      });
-
-    render(container, taskElement, Position.BEFOREEND);
+  _removeCalendarItems() {
+    document.body.querySelectorAll(`.flatpickr-calendar`).forEach((item) => item.remove());
   }
 
   _getBoardTasks() {
+    this._removeCalendarItems();
+
     const boardTasksElement = this._boardTasks.getElement();
 
     for (const taskData of this._copyTasksData) {

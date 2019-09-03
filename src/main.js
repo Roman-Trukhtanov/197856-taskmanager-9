@@ -4,7 +4,6 @@ import Control from "./components/control";
 import Filter from "./components/filter";
 import FilterItem from "./components/filter-item";
 import {allTasksData, dataControls, filtersData} from "./data";
-import {monthsNames} from "./config";
 import BoardController from "./controllers/board";
 
 const mainContainer = document.querySelector(`.main`);
@@ -48,8 +47,7 @@ const initTodoApp = () => {
   const boardController = new BoardController(
       mainContainer,
       allTasksData,
-      filtersData,
-      monthsNames
+      filtersData
   );
 
   boardController.init();

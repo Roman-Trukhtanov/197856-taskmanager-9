@@ -1,4 +1,5 @@
 import {TASK_COUNT} from "./config";
+import moment from "moment";
 
 export const dataControls = [
   {
@@ -27,13 +28,13 @@ export const getCardTaskData = () => {
     ][Math.floor(Math.random() * 3)],
     dueDate: Date.now() + (Math.floor(Math.random() * 15) - 7) * 24 * 60 * 60 * 1000,
     repeatingDays: {
-      Mo: false,
-      Tu: false,
-      We: false,
-      Th: Boolean(Math.floor(Math.random() * 2)),
-      Fr: false,
-      Sa: false,
-      Su: false,
+      'mo': false,
+      'tu': false,
+      'we': false,
+      'th': Boolean(Math.floor(Math.random() * 2)),
+      'fr': false,
+      'sa': false,
+      'su': false,
     },
     tags: new Set(new Array(Math.floor(Math.random() * 4))
       .fill(``)
@@ -72,7 +73,7 @@ export const getFiltersData = (tasksData) => {
     "overdue": {
       title: `overdue`,
       get count() {
-        return tasksData.filter((task) => new Date(task.dueDate).getDate() < new Date(Date.now()).getDate()).length;
+        return tasksData.filter((task) => moment(task.dueDate).format(`YYYY-MM-DD-HH-mm`) < moment(Date.now()).format(`YYYY-MM-DD-HH-mm`)).length;
       }
     },
     "today": {

@@ -1,28 +1,61 @@
+import {createElement, Position, render, unrender} from "../utils";
 import AbstractComponent from "./abstract-component";
+import moment from "moment";
 
 export default class TaskEdit extends AbstractComponent {
-  constructor({repeatingDays, tags, color, dueDate}, monthsNames) {
+  constructor({description, repeatingDays, tags, color, dueDate, isFavorite, isArchive}, initFlatPickr, removeFlatPickr, checkDate) {
     super();
+    this._description = description;
     this._dueDate = dueDate;
     this._repeatingDays = repeatingDays;
     this._tags = tags;
+    this._copiedTags = new Set([...tags]);
     this._color = color;
-    this._monthsNames = monthsNames;
+    this._isFavorite = isFavorite;
+    this._isArchive = isArchive;
+    this._initFlatPickr = initFlatPickr;
+    this._removeFlatPickr = removeFlatPickr;
+    this._checkDate = checkDate;
+
+    this._addListenerToDateItem();
+    this._addListenerToRepeatItem();
+    this._addListenerToColors();
+    this._addListenerToHashTag();
+    this._addRemoveTagsListeners();
+  }
+
+  _getTag(tag) {
+    return `<span class="card__hashtag-inner">
+      <input
+        type="hidden"
+        name="hashtag"
+        value="${tag}"
+        class="card__hashtag-hidden-input"
+      />
+      <p class="card__hashtag-name">
+        #${tag}
+      </p>
+      <button type="button" class="card__hashtag-delete">
+        delete
+      </button>
+    </span>`.trim();
   }
 
   getTemplate() {
     const isRepeated = Object.keys(this._repeatingDays).some((day) => this._repeatingDays[day]);
 
-    return `<article class="card card--edit card--${this._color} ${isRepeated ? `card--repeat` : ``}">
+    const isDeadLine = moment(this._dueDate).format(`YYYY-MM-DD-HH-mm`) < moment(Date.now()).format(`YYYY-MM-DD-HH-mm`);
+
+    return `<article class="card card--edit card--${this._color} ${isRepeated ? `card--repeat` : ``} ${isDeadLine ? `card--deadline` : ``}">
       <form class="card__form" method="get">
         <div class="card__inner">
           <div class="card__control">
-            <button type="button" class="card__btn card__btn--archive">
+            <button type="button" class="card__btn card__btn--archive ${this._isArchive ? `card__btn--disabled` : ``}">
               archive
             </button>
             <button
               type="button"
-              class="card__btn card__btn--favorites card__btn--disabled"
+              class="card__btn card__btn--favorites ${this._isFavorite ? `card__btn--disabled` : ``}"
             >
               favorites
             </button>
@@ -40,7 +73,7 @@ export default class TaskEdit extends AbstractComponent {
                 class="card__text"
                 placeholder="Start typing your text here..."
                 name="text"
-              >Here is a card with filled data</textarea>
+              >${this._description}</textarea>
             </label>
           </div>
   
@@ -48,24 +81,24 @@ export default class TaskEdit extends AbstractComponent {
             <div class="card__details">
               <div class="card__dates">
                 <button class="card__date-deadline-toggle" type="button">
-                  date: <span class="card__date-status">yes</span>
+                  date: <span class="card__date-status">${this._dueDate !== null ? `yes` : `no`}</span>
                 </button>
   
-                <fieldset class="card__date-deadline">
+                <fieldset class="card__date-deadline" ${this._dueDate !== null ? `` : `disabled`}>
                   <label class="card__input-deadline-wrap">
                     <input
                       class="card__date"
                       type="text"
                       placeholder=""
                       name="date"
-                      value="${new Date(this._dueDate).getDate()} ${this._monthsNames[new Date(this._dueDate).getMonth()]} ${new Date(this._dueDate).toTimeString().slice(0, 5)} PM"
+                      value="${moment(this._dueDate).format(`DD:MM:YYYY`)}"
                     />
                   </label>
                 </fieldset>
   
                 <button class="card__repeat-toggle" type="button">repeat:<span class="card__repeat-status">${isRepeated ? `yes` : `no`}</span></button>
   
-                <fieldset class="card__repeat-days">
+                <fieldset class="card__repeat-days" ${isRepeated ? `` : `disabled`}>
                   <div class="card__repeat-days-inner">
                     <input
                       class="visually-hidden card__repeat-day-input"
@@ -73,7 +106,7 @@ export default class TaskEdit extends AbstractComponent {
                       id="repeat-mo-4"
                       name="repeat"
                       value="mo"
-                      ${this._repeatingDays[`Mo`] ? `checked` : ``}
+                      ${this._repeatingDays[`mo`] ? `checked` : ``}
                     />
                     <label class="card__repeat-day" for="repeat-mo-4"
                       >mo</label
@@ -84,7 +117,7 @@ export default class TaskEdit extends AbstractComponent {
                       id="repeat-tu-4"
                       name="repeat"
                       value="tu"
-                      ${this._repeatingDays[`Tu`] ? `checked` : ``}
+                      ${this._repeatingDays[`tu`] ? `checked` : ``}
                     />
                     <label class="card__repeat-day" for="repeat-tu-4"
                       >tu</label
@@ -95,7 +128,7 @@ export default class TaskEdit extends AbstractComponent {
                       id="repeat-we-4"
                       name="repeat"
                       value="we"
-                      ${this._repeatingDays[`We`] ? `checked` : ``}
+                      ${this._repeatingDays[`we`] ? `checked` : ``}
                     />
                     <label class="card__repeat-day" for="repeat-we-4"
                       >we</label
@@ -106,7 +139,7 @@ export default class TaskEdit extends AbstractComponent {
                       id="repeat-th-4"
                       name="repeat"
                       value="th"
-                      ${this._repeatingDays[`Th`] ? `checked` : ``}
+                      ${this._repeatingDays[`th`] ? `checked` : ``}
                     />
                     <label class="card__repeat-day" for="repeat-th-4"
                       >th</label
@@ -117,7 +150,7 @@ export default class TaskEdit extends AbstractComponent {
                       id="repeat-fr-4"
                       name="repeat"
                       value="fr"
-                      ${this._repeatingDays[`Fr`] ? `checked` : ``}
+                      ${this._repeatingDays[`fr`] ? `checked` : ``}
                     />
                     <label class="card__repeat-day" for="repeat-fr-4"
                       >fr</label
@@ -128,7 +161,7 @@ export default class TaskEdit extends AbstractComponent {
                       id="repeat-sa-4"
                       name="repeat"
                       value="sa"
-                      ${this._repeatingDays[`Sa`] ? `checked` : ``}
+                      ${this._repeatingDays[`sa`] ? `checked` : ``}
                     />
                     <label class="card__repeat-day" for="repeat-sa-4"
                       >sa</label
@@ -139,7 +172,7 @@ export default class TaskEdit extends AbstractComponent {
                       id="repeat-su-4"
                       name="repeat"
                       value="su"
-                      ${this._repeatingDays[`Su`] ? `checked` : ``}
+                      ${this._repeatingDays[`su`] ? `checked` : ``}
                     />
                     <label class="card__repeat-day" for="repeat-su-4"
                       >su</label
@@ -150,20 +183,7 @@ export default class TaskEdit extends AbstractComponent {
   
               <div class="card__hashtag">
                 <div class="card__hashtag-list">
-                  ${Array.from(this._tags).map((tag) => `<span class="card__hashtag-inner">
-                    <input
-                      type="hidden"
-                      name="hashtag"
-                      value="repeat"
-                      class="card__hashtag-hidden-input"
-                    />
-                    <p class="card__hashtag-name">
-                      #${tag}
-                    </p>
-                    <button type="button" class="card__hashtag-delete">
-                      delete
-                    </button>
-                  </span>`).join(``)}
+                  ${Array.from(this._tags).map((tag) => this._getTag(tag)).join(``)}
                 </div>
   
                 <label>
@@ -256,5 +276,128 @@ export default class TaskEdit extends AbstractComponent {
         </div>
       </form>
     </article>`.trim();
+  }
+
+  _addListenerToDateItem() {
+    const taskEditElement = this.getElement();
+
+    taskEditElement
+      .querySelector(`.card__date-deadline-toggle`)
+      .addEventListener(`click`, (evt) => {
+        evt.preventDefault();
+        const targetItem = evt.currentTarget;
+
+        const dateDeadlineItem = taskEditElement.querySelector(`.card__date-deadline`);
+
+        const cardDateItem = dateDeadlineItem.querySelector(`.card__date`);
+
+        const dateStatus = targetItem.querySelector(`.card__date-status`);
+
+        if (this._checkDate()) {
+          dateStatus.textContent = `no`;
+          cardDateItem.value = ``;
+          this._removeFlatPickr();
+          dateDeadlineItem.disabled = true;
+        } else {
+          dateStatus.textContent = `yes`;
+          this._initFlatPickr(cardDateItem);
+          dateDeadlineItem.disabled = false;
+        }
+      });
+  }
+
+  _addListenerToRepeatItem() {
+    const taskEditElement = this.getElement();
+
+    taskEditElement
+      .querySelector(`.card__repeat-toggle`)
+      .addEventListener(`click`, (evt) => {
+        evt.preventDefault();
+        const targetItem = evt.currentTarget;
+
+        const repeatDaysItems = taskEditElement.querySelector(`.card__repeat-days`);
+
+        const repeatDayInputs = repeatDaysItems.querySelectorAll(`.card__repeat-day-input`);
+
+        const repeatStatus = targetItem.querySelector(`.card__repeat-status`);
+
+        if (repeatDaysItems.disabled) {
+          repeatDaysItems.disabled = false;
+          repeatStatus.textContent = `yes`;
+          taskEditElement.classList.add(`card--repeat`);
+
+          for (const repeatDayInput of repeatDayInputs) {
+            repeatDayInput.checked = this._repeatingDays[repeatDayInput.value];
+          }
+        } else {
+          repeatStatus.textContent = `no`;
+          taskEditElement.classList.remove(`card--repeat`);
+
+          for (const repeatDayInput of repeatDayInputs) {
+            repeatDayInput.checked = false;
+          }
+
+          repeatDaysItems.disabled = true;
+        }
+      });
+  }
+
+  _addListenerToColors() {
+    const taskEditElement = this.getElement();
+
+    const cardForm = taskEditElement.querySelector(`.card__form`);
+
+    let color = this._color;
+
+    cardForm.addEventListener(`change`, (evt) => {
+      if (evt.target.classList.contains(`card__color-input`)) {
+        evt.preventDefault();
+        const targetColor = evt.target.value;
+        taskEditElement.classList.remove(`card--${color}`);
+        taskEditElement.classList.add(`card--${targetColor}`);
+        color = targetColor;
+      }
+    });
+  }
+
+  _addListenerToHashTag() {
+    const taskEditElement = this.getElement();
+
+    const hashTagListItem = taskEditElement.querySelector(`.card__hashtag-list`);
+
+    const hashTagTextInput = taskEditElement.querySelector(`.card__hashtag-input`);
+
+    hashTagTextInput.addEventListener(`keydown`, (evt) => {
+      if (evt.key === `Enter`) {
+        evt.preventDefault();
+
+        const tagElement = createElement(this._getTag(hashTagTextInput.value));
+
+        if (hashTagTextInput.value !== `` && !this._copiedTags.has(hashTagTextInput.value)) {
+          this._copiedTags.add(hashTagTextInput.value);
+          render(hashTagListItem, tagElement, Position.BEFOREEND);
+        }
+
+        hashTagTextInput.value = ``;
+      }
+    });
+  }
+
+  _addRemoveTagsListeners() {
+    const taskEditElement = this.getElement();
+
+    const hashTagWrapItems = taskEditElement.querySelectorAll(`.card__hashtag-inner`);
+
+    for (const tagWrapItem of hashTagWrapItems) {
+      const deleteTagBtn = tagWrapItem.querySelector(`.card__hashtag-delete`);
+
+      const tagInputItem = tagWrapItem.querySelector(`.card__hashtag-hidden-input`);
+
+      deleteTagBtn.addEventListener(`click`, (evt) => {
+        evt.preventDefault();
+        this._copiedTags.delete(tagInputItem.value);
+        unrender(tagWrapItem);
+      });
+    }
   }
 }

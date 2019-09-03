@@ -1,7 +1,8 @@
 import AbstractComponent from "./abstract-component";
+import moment from "moment";
 
 export default class Task extends AbstractComponent {
-  constructor({description, dueDate, repeatingDays, tags, color, isFavorite, isArchive}, monthsNames) {
+  constructor({description, dueDate, repeatingDays, tags, color, isFavorite, isArchive}) {
     super();
     this._description = description;
     this._dueDate = dueDate;
@@ -10,11 +11,14 @@ export default class Task extends AbstractComponent {
     this._color = color;
     this._isFavorite = isFavorite;
     this._isArchive = isArchive;
-    this._monthsNames = monthsNames;
   }
 
   getTemplate() {
-    return `<article class="card card--${this._color} ${Object.keys(this._repeatingDays).some((day) => this._repeatingDays[day]) ? `card--repeat` : ``}">
+    const isRepeatedDays = Object.keys(this._repeatingDays).some((day) => this._repeatingDays[day]);
+
+    const isDeadLine = moment(this._dueDate).format(`YYYY-MM-DD-HH-mm`) < moment(Date.now()).format(`YYYY-MM-DD-HH-mm`);
+
+    return `<article class="card card--${this._color}${isRepeatedDays ? ` card--repeat` : ``}${isDeadLine ? ` card--deadline` : ``}">
       <div class="card__form">
         <div class="card__inner">
           <div class="card__control">
@@ -47,8 +51,8 @@ export default class Task extends AbstractComponent {
               <div class="card__dates">
                 <div class="card__date-deadline">
                   <p class="card__input-deadline-wrap">
-                    <span class="card__date">${new Date(this._dueDate).getDate()} ${this._monthsNames[new Date(this._dueDate).getMonth()]}</span>
-                    <span class="card__time">${new Date(this._dueDate).toTimeString().slice(0, 5)} PM</span>
+                    <span class="card__date">${this._dueDate !== null ? moment(this._dueDate).format(`D MMM`) : ``}</span>
+                    <span class="card__time">${this._dueDate !== null ? moment(this._dueDate).format(`hh:mm A`) : ``}</span>
                   </p>
                 </div>
               </div>
