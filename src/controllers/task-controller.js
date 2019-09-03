@@ -155,8 +155,8 @@ export default class TaskController {
 
   setDefaultView() {
     if (this._container.contains(this._taskEdit.getElement())) {
-      this._container.replaceChild(this._task.getElement(), this._taskEdit.getElement());
       this.removeFlatPickr();
+      this._container.replaceChild(this._task.getElement(), this._taskEdit.getElement());
     }
   }
 }
