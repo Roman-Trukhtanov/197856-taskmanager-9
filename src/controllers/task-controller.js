@@ -33,7 +33,7 @@ export default class TaskController {
   initFlatPickr(element) {
     this._flatPickr = flatpickr(element, {
       altInput: true,
-      altFormat: `j M, h:i K`,
+      altFormat: `j F, h:i K`,
       allowInput: true,
       enableTime: true,
       defaultDate: this._taskData.dueDate ? this._taskData.dueDate : Date.now()
