@@ -19,7 +19,7 @@ export default class TaskController {
     this._taskEdit = new TaskEdit(taskData, this.initFlatPickr, this.removeFlatPickr, this.checkDate);
     this._flatPickr = null;
     this.init();
-    this._isHasData = false;
+    this._isHasDate = false;
   }
 
   init() {
@@ -27,7 +27,7 @@ export default class TaskController {
   }
 
   checkDate() {
-    return this._isHasData;
+    return this._isHasDate;
   }
 
   initFlatPickr(element) {
@@ -38,13 +38,13 @@ export default class TaskController {
       enableTime: true,
       defaultDate: this._taskData.dueDate ? this._taskData.dueDate : Date.now()
     });
-    this._isHasData = this._taskData.dueDate !== null;
+    this._isHasDate = this._taskData.dueDate !== null;
   }
 
   removeFlatPickr() {
     if (this._flatPickr !== null) {
       this._flatPickr.destroy();
-      this._isHasData = false;
+      this._isHasDate = false;
     }
   }
 
