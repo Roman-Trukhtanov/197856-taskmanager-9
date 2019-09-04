@@ -51,7 +51,7 @@ export default class Task extends AbstractComponent {
               <div class="card__dates">
                 <div class="card__date-deadline">
                   <p class="card__input-deadline-wrap">
-                    <span class="card__date">${this._dueDate !== null ? moment(this._dueDate).format(`D MMM`) : ``}</span>
+                    <span class="card__date">${this._dueDate !== null ? moment(this._dueDate).format(`D MMMM`) : ``}</span>
                     <span class="card__time">${this._dueDate !== null ? moment(this._dueDate).format(`hh:mm A`) : ``}</span>
                   </p>
                 </div>
