@@ -360,6 +360,18 @@ export default class TaskEdit extends AbstractComponent {
     });
   }
 
+  _addRemoveListenerToTagItem(tagElement) {
+    const deleteTagBtn = tagElement.querySelector(`.card__hashtag-delete`);
+
+    const tagInputItem = tagElement.querySelector(`.card__hashtag-hidden-input`);
+
+    deleteTagBtn.addEventListener(`click`, (evt) => {
+      evt.preventDefault();
+      this._copiedTags.delete(tagInputItem.value);
+      unrender(tagElement);
+    });
+  }
+
   _addListenerToHashTag() {
     const taskEditElement = this.getElement();
 
@@ -375,6 +387,7 @@ export default class TaskEdit extends AbstractComponent {
 
         if (hashTagTextInput.value !== `` && !this._copiedTags.has(hashTagTextInput.value)) {
           this._copiedTags.add(hashTagTextInput.value);
+          this._addRemoveListenerToTagItem(tagElement);
           render(hashTagListItem, tagElement, Position.BEFOREEND);
         }
 
@@ -389,15 +402,7 @@ export default class TaskEdit extends AbstractComponent {
     const hashTagWrapItems = taskEditElement.querySelectorAll(`.card__hashtag-inner`);
 
     for (const tagWrapItem of hashTagWrapItems) {
-      const deleteTagBtn = tagWrapItem.querySelector(`.card__hashtag-delete`);
-
-      const tagInputItem = tagWrapItem.querySelector(`.card__hashtag-hidden-input`);
-
-      deleteTagBtn.addEventListener(`click`, (evt) => {
-        evt.preventDefault();
-        this._copiedTags.delete(tagInputItem.value);
-        unrender(tagWrapItem);
-      });
+      this._addRemoveListenerToTagItem(tagWrapItem);
     }
   }
 }
